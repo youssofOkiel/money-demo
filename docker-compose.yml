@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: money-demo-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_DATABASE:-laravel}
+      - POSTGRES_USER=${DB_USERNAME:-laravel}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-laravel}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - money-demo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-laravel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -13,11 +33,14 @@ services:
       - ./storage:/var/www/html/storage
     environment:
       - DB_CONNECTION=pgsql
-      - DB_HOST=${DB_HOST:-127.0.0.1}
-      - DB_PORT=${DB_PORT:-5432}
+      - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_DATABASE=${DB_DATABASE:-laravel}
       - DB_USERNAME=${DB_USERNAME:-laravel}
       - DB_PASSWORD=${DB_PASSWORD:-laravel}
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - money-demo-network
 
@@ -40,3 +63,7 @@ networks:
     driver: bridge
   shared_services_network:
     external: true
+
+volumes:
+  postgres_data:
+    driver: local
