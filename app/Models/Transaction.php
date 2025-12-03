@@ -17,6 +17,8 @@ class Transaction extends Model
      */
     protected $fillable = [
         'cost',
+        'price',
+        'quantity',
     ];
 
     /**
@@ -27,7 +29,9 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'cost' => Money::class,
+            'cost' => Money::class, 
+            'price' => Money::class,
+            'quantity' => 'decimal:2',
         ];
     }
 }

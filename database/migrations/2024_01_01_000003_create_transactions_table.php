@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->integer('cost');
+            $table->bigInteger('cost');
+            $table->integer('price');
+            $table->decimal('quantity', 10, 2);
+
             $table->timestamps();
         });
     }
