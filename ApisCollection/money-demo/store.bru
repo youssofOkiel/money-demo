@@ -1,0 +1,17 @@
+meta {
+  name: store
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/transactions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "cost": 150.25
+  }
+}
