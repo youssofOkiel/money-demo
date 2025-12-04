@@ -31,9 +31,8 @@ class TransactionController extends Controller
         //     'message' => 'Transactions created successfully',
         // ]);
 
-        logger()->info('Starting transaction processing');
-        $chunkSize = (int) env('CHUNK_SIZE', 10000); // Reduced from 30000 to 10000 for memory efficiency
-        $maxConcurrentProcesses = (int) env('MAX_CONCURRENT_PROCESSES', 10); // Reduced from 100 to 10
+        $chunkSize = 10000; // Reduced from 30000 to 10000 for memory efficiency
+        $maxConcurrentProcesses = 10;
         $totalCount = Transaction::count();
         $totalChunks = (int) ceil($totalCount / $chunkSize);
         $batchSize = 0;
@@ -87,7 +86,7 @@ class TransactionController extends Controller
             'chunks' => $chunks,
             'batch_size' => $batchSize,
             'processed_chunks' => $processedChunks,
-            'total_count' => $totalCount,
+            'total_count' => number_format($totalCount),
             'chunk_size' => $chunkSize,
             'max_concurrent_processes' => $maxConcurrentProcesses,
         ]);

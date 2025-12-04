@@ -4,6 +4,7 @@ namespace App\Support\Money;
 
 use App\Support\Money\Enums\Currency;
 use Exception;
+use RoundingMode;
 
 class Money
 {
@@ -29,7 +30,7 @@ class Money
 
     public function formatted(): string
     {
-        return number_format($this->amount() / $this->smallestUnit, $this->decimalPlaces).' '. $this->currency->label();
+        return number_format($this->amount() / $this->smallestUnit, $this->decimalPlaces).' '. $this->currency()->label();
     }
 
     public function decimal(): string
