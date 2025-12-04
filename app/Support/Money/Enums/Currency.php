@@ -16,6 +16,14 @@ enum Currency: string
         };
     }
 
+    public function smallestUnit(): int
+    {
+        return match ($this) {
+            Currency::EGP, Currency::SAR => 1000,
+            Currency::KWD => 10000,
+        };
+    }
+
     public function equals(Currency $currency): bool
     {
         return $this->value === $currency->value;

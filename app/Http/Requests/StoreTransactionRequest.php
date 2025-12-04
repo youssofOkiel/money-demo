@@ -13,6 +13,8 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'cost' => ['required', new Money(Currency::EGP)],
+            'price' => ['required', new Money(Currency::EGP)],
+            'quantity' => ['required', 'numeric', 'min:1'],
         ];
     }
 }

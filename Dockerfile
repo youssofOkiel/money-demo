@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Increase PHP memory limit for concurrent processing
+RUN echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/memory.ini
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html

@@ -7,9 +7,15 @@ use Exception;
 
 class Money
 {
+    protected int $decimalPlaces;
+    protected int $smallestUnit;
+
     public function __construct(
         protected int|float $amount,
-        protected Currency $currency = Currency::EGP) {}
+        protected Currency $currency = Currency::EGP) {
+            $this->decimalPlaces = $currency->decimalPlaces();
+            $this->smallestUnit = $currency->smallestUnit();
+        }
 
     public function amount(): int
     {
@@ -23,21 +29,12 @@ class Money
 
     public function formatted(): string
     {
-        return match ($this->currency()) {
-            Currency::SAR => number_format($this->amount() / 100, 2).' '. $this->currency()->label(),
-            Currency::KWD => number_format($this->amount() / 1000, 3).' '. $this->currency()->label(),
-            Currency::EGP => number_format($this->amount() / 100, 2).' '. $this->currency()->label(),
-            default => throw new Exception(__('error.unsupported_currency')),
-        };
+        return number_format($this->amount() / $this->smallestUnit, $this->decimalPlaces).' '. $this->currency->label();
     }
 
     public function decimal(): string
     {
-        return match ($this->currency()) {
-            Currency::EGP,Currency::SAR => number_format($this->amount() / 100, 2),
-            Currency::KWD => number_format($this->amount() / 1000, 3),
-            default => throw new Exception(__('error.unsupported_currency')),
-        };
+        return number_format($this->amount() / $this->smallestUnit, $this->decimalPlaces);
     }
 
     /**
@@ -53,8 +50,8 @@ class Money
 
         // Convert to smallest currency unit
         $smallestUnitAmount = match ($currency) {
-            Currency::KWD => (int) round($floatAmount * 1000),
-            Currency::EGP, Currency::SAR => (int) round($floatAmount * 100),
+            Currency::KWD => (int) round($floatAmount * $currency->smallestUnit()),
+            Currency::EGP, Currency::SAR => (int) round($floatAmount * $currency->smallestUnit()),
             default => throw new Exception(__('error.unsupported_currency')),
         };
 
@@ -108,7 +105,8 @@ class Money
 
     public function multiply(int|float|string $multiplier): Money
     {
-        return new self($this->amount() * $multiplier, $this->currency());
+        $result = $this->amount() * (float) $multiplier;
+        return new self((int) round($result), $this->currency());
     }
 
     /**
@@ -134,7 +132,8 @@ class Money
             throw new Exception(__('error.division_by_zero'));
         }
 
-        $this->amount /= $divisor;
+        $result = $this->amount() / (float) $divisor;
+        $this->amount = (int) round($result);
 
         return $this;
     }

@@ -17,6 +17,8 @@ class TransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'cost' => new MoneyResource($this->cost),
+            'price' => new MoneyResource($this->price),
+            'quantity' => $this->quantity,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
