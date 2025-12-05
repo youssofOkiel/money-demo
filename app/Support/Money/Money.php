@@ -49,7 +49,13 @@ class Money
         $floatAmount = (float) $normalizedAmount;
 
         // Convert to smallest currency unit
-        $smallestUnitAmount = (int) round($floatAmount * $currency->smallestUnit());
+        $smallestUnitAmount = self::truncate($floatAmount, $currency->decimalPlaces(), $currency->smallestUnit());
+
+        logger()->info('parse => ', [
+            'normalizedAmount' => $normalizedAmount,
+            'floatAmount' => $floatAmount,
+            'smallestUnitAmount' => $smallestUnitAmount,
+        ]);
 
         return new self($smallestUnitAmount, $currency);
     }
@@ -102,7 +108,17 @@ class Money
     public function multiply(int|float|string $multiplier): Money
     {
         $result = $this->amount() * (float) $multiplier;
-        $this->amount = (int) round($result);
+        // $this->amount = self::truncate($result, $this->decimalPlaces, $this->smallestUnit);
+        $this->amount = (int) $result;
+
+        logger()->info('===============================================');
+        logger()->info('multiply => ', [
+            'multiplier' => $multiplier,
+            'amount' => $this->amount(),
+            'result' => $result,
+            'afterTruncate' => self::truncate($result, $this->decimalPlaces, $this->smallestUnit),
+            'afterCastToInt' => (int) $result,
+        ]);
 
         return $this;
     }
@@ -131,7 +147,7 @@ class Money
         }
 
         $result = $this->amount() / (float) $divisor;
-        $this->amount = (int) round($result);
+        $this->amount = self::truncate($result, $this->decimalPlaces, $this->smallestUnit);
 
         return $this;
     }
@@ -153,5 +169,13 @@ class Money
     public function isNegative(): bool
     {
         return $this->amount() < 0;
+    }
+
+    public static function truncate(int|float $amount, int $decimalPlaces, int $smallestUnit): int
+    {
+        $factor = 10 ** $decimalPlaces;
+        $truncated = floor($amount * $factor) / $factor;
+
+        return (int) ($truncated * $smallestUnit);
     }
 }
