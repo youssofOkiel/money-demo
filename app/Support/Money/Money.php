@@ -4,7 +4,6 @@ namespace App\Support\Money;
 
 use App\Support\Money\Enums\Currency;
 use Exception;
-use RoundingMode;
 
 class Money
 {
@@ -45,16 +44,12 @@ class Money
     {
         // Normalize the input amount
         $normalizedAmount = self::normalizeAmount($amount);
-
+        
         // Convert to float for processing
         $floatAmount = (float) $normalizedAmount;
 
         // Convert to smallest currency unit
-        $smallestUnitAmount = match ($currency) {
-            Currency::KWD => (int) round($floatAmount * $currency->smallestUnit()),
-            Currency::EGP, Currency::SAR => (int) round($floatAmount * $currency->smallestUnit()),
-            default => throw new Exception(__('error.unsupported_currency')),
-        };
+        $smallestUnitAmount = (int) round($floatAmount * $currency->smallestUnit());
 
         return new self($smallestUnitAmount, $currency);
     }
@@ -107,7 +102,9 @@ class Money
     public function multiply(int|float|string $multiplier): Money
     {
         $result = $this->amount() * (float) $multiplier;
-        return new self((int) round($result), $this->currency());
+        $this->amount = (int) round($result);
+
+        return $this;
     }
 
     /**
