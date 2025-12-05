@@ -10,6 +10,10 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    protected $table = 'transactions';
+
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *

@@ -14,28 +14,11 @@ class TransactionController extends Controller
 
     public function index()
     {
-        // Concurrency::run([
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        //     fn() => Transaction::factory()->count(4000)->create(),
-        // ]);
-
-        // return response()->json([
-        //     'message' => 'Transactions created successfully',
-        // ]);
-
-        $chunkSize = 10000; // Reduced from 30000 to 10000 for memory efficiency
+        $chunkSize = 10000;
         $maxConcurrentProcesses = 10;
         $totalCount = Transaction::count();
         $totalChunks = (int) ceil($totalCount / $chunkSize);
-        $batchSize = 0;
+        $batchSize = 10;
 
         // Limit the number of concurrent processes
         $chunks = min($totalChunks, $maxConcurrentProcesses);
@@ -120,7 +103,7 @@ class TransactionController extends Controller
         Transaction::query()
             ->where('id', '>=', $startId)
             ->orderBy('id')
-            ->chunkById(1000, function ($transactions) use (&$cost, &$priceAndQuantity, &$processed, $limit, &$shouldStop) {
+            ->chunkById(10000, function ($transactions) use (&$cost, &$priceAndQuantity, &$processed, $limit, &$shouldStop) {
                 if ($shouldStop) {
                     return false;
                 }

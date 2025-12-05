@@ -19,8 +19,8 @@ enum Currency: string
     public function smallestUnit(): int
     {
         return match ($this) {
-            Currency::EGP, Currency::SAR => 1000,
-            Currency::KWD => 10000,
+            Currency::EGP, Currency::SAR => 100,
+            Currency::KWD => 1000,
         };
     }
 
