@@ -37,6 +37,11 @@ class Money
         return number_format($this->amount() / $this->smallestUnit, $this->decimalPlaces);
     }
 
+    public function clone(): Money
+    {
+        return new self($this->amount(), $this->currency());
+    }
+
     /**
      * @throws Exception
      */
