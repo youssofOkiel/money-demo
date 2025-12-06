@@ -23,7 +23,11 @@ class TransactionFactory extends Factory
         $quantity = fake()->randomFloat(2, 1.00, 100.00);
 
         return [
-            'cost' => Money::parse($price * $quantity),
+            /**
+             * Rounding to 2 decimal places to simulate 
+             * the actual money you get in the real world
+             */
+            'cost' => Money::parse(round($price * $quantity, 2)),
             'price' => Money::parse($price),
             'quantity' => $quantity,
         ];
