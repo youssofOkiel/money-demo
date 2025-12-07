@@ -56,11 +56,11 @@ class Money
         // Convert to smallest currency unit
         $smallestUnitAmount = self::truncate($floatAmount, $currency->decimalPlaces(), $currency->smallestUnit());
 
-        logger()->info('parse => ', [
-            'normalizedAmount' => $normalizedAmount,
-            'floatAmount' => $floatAmount,
-            'smallestUnitAmount' => $smallestUnitAmount,
-        ]);
+        // logger()->info('parse => ', [
+        //     'normalizedAmount' => $normalizedAmount,
+        //     'floatAmount' => $floatAmount,
+        //     'smallestUnitAmount' => $smallestUnitAmount,
+        // ]);
 
         return new self($smallestUnitAmount, $currency);
     }
@@ -116,14 +116,14 @@ class Money
         // $this->amount = self::truncate($result, $this->decimalPlaces, $this->smallestUnit);
         $this->amount = (int) $result;
 
-        logger()->info('===============================================');
-        logger()->info('multiply => ', [
-            'multiplier' => $multiplier,
-            'amount' => $this->amount(),
-            'result' => $result,
-            'afterTruncate' => self::truncate($result, $this->decimalPlaces, $this->smallestUnit),
-            'afterCastToInt' => (int) $result,
-        ]);
+        // logger()->info('===============================================');
+        // logger()->info('multiply => ', [
+        //     'multiplier' => $multiplier,
+        //     'amount' => $this->amount(),
+        //     'result' => $result,
+        //     'afterTruncate' => self::truncate($result, $this->decimalPlaces, $this->smallestUnit),
+        //     'afterCastToInt' => (int) $result,
+        // ]);
 
         return $this;
     }
