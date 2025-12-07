@@ -1,58 +1,227 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Money Demo
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel application demonstrating efficient transaction processing with concurrent operations and money calculations using a custom Money value object.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Custom Money Value Object**: Handles multiple currencies (EGP, SAR, KWD) with proper rounding and precision
+- **Concurrent Processing**: Uses Laravel's Concurrency facade for parallel transaction processing
+- **Efficient Seeding**: Command to seed millions of transaction records using factory and bulk inserts
+- **Transaction Reports**: Generate reports with total cost, price×quantity calculations, and difference analysis
+- **Docker Setup**: Complete Docker environment with PostgreSQL, PHP-FPM, and Nginx
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Docker and Docker Compose
+- PHP 8.4+
+- PostgreSQL 15+
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd money-demo
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. Copy environment file:
+```bash
+cp .env.example .env
+```
 
-## Laravel Sponsors
+3. Start Docker containers:
+```bash
+docker-compose up -d
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. Install dependencies:
+```bash
+docker-compose exec app composer install
+```
 
-### Premium Partners
+5. Generate application key:
+```bash
+docker-compose exec app php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6. Run migrations:
+```bash
+docker-compose exec app php artisan migrate
+```
 
-## Contributing
+## Docker Commands
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Start services
+```bash
+docker-compose up -d
+```
 
-## Code of Conduct
+### Stop services
+```bash
+docker-compose down
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### View logs
+```bash
+docker-compose logs -f app
+```
 
-## Security Vulnerabilities
+### Execute commands in container
+```bash
+docker-compose exec app <command>
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Artisan Commands
+
+### Seed Transactions
+
+Seed transaction records efficiently using factory and concurrent processing.
+
+**Usage:**
+```bash
+docker-compose exec app php artisan transactions:seed [options]
+```
+
+**Options:**
+- `--count`: Number of records to seed (default: 100,000)
+- `--workers`: Number of concurrent workers (default: 10)
+
+**Examples:**
+```bash
+# Seed 100,000 records (default)
+docker-compose exec app php artisan transactions:seed
+
+# Seed 1 million records with 15 concurrent workers
+docker-compose exec app php artisan transactions:seed --count=1000000 --workers=15
+
+# Seed 500,000 records
+docker-compose exec app php artisan transactions:seed --count=500000
+```
+
+**How it works:**
+- Uses `TransactionFactory` to generate data
+- Processes records in chunks (default: 10,000 per chunk)
+- Uses Laravel's `Concurrency` facade for parallel processing
+- Performs bulk inserts for optimal performance
+- Shows progress bar and performance metrics
+
+### Generate Transaction Report
+
+Generate a comprehensive report of all transactions with total cost, price×quantity, and difference calculations.
+
+**Usage:**
+```bash
+docker-compose exec app php artisan transactions:report [options]
+```
+
+**Options:**
+- `--count`: Number of records to report (default: all transactions)
+- `--workers`: Number of concurrent workers (default: 10)
+
+**Examples:**
+```bash
+# Generate report for all transactions
+docker-compose exec app php artisan transactions:report
+
+# Generate report for first 50,000 transactions
+docker-compose exec app php artisan transactions:report --count=50000
+
+# Generate report with 15 concurrent workers
+docker-compose exec app php artisan transactions:report --workers=15
+```
+
+**Report Output:**
+The report displays:
+- **Total Cost**: Sum of all transaction costs
+- **Total Price × Quantity**: Sum of price multiplied by quantity for each transaction
+- **Difference**: Difference between total cost and total price×quantity
+- **Statistics**: Total transactions, chunk size, processing time, etc.
+
+**How it works:**
+- Processes transactions in chunks using concurrent workers
+- Calculates totals using Money value objects
+- Uses `chunkById` for memory-efficient processing
+- Displays results in a formatted table
+
+## Database
+
+### PostgreSQL Query for Report
+
+You can also generate the same report directly from PostgreSQL:
+
+```sql
+SELECT
+    count(id),
+    sum(t.cost) / 100.0 as cost,
+    sum(round(t.price * t.quantity)) / 100.0 as "price * quantity",
+    (sum(t.cost) - sum(round(t.price * t.quantity))) / 100.0 as "diff"
+FROM transactions t;
+```
+
+**Note:** The query matches the PHP calculation by:
+- Rounding `price * quantity` per transaction (matching PHP's `multiply()` method)
+- Summing the rounded values
+- Dividing by 100 to convert from smallest units (cents) to EGP
+
+### Database Connection
+
+- **Host**: `localhost` (or `postgres` from within Docker network)
+- **Port**: `5432`
+- **Database**: `laravel` (default, configurable via `.env`)
+- **Username**: `laravel` (default, configurable via `.env`)
+- **Password**: `laravel` (default, configurable via `.env`)
+
+## Money Value Object
+
+The application uses a custom `Money` value object that:
+- Supports multiple currencies (EGP, SAR, KWD)
+- Stores amounts in smallest currency units (e.g., 100 = 1.00 EGP)
+- Handles rounding consistently across operations
+- Provides formatted output with currency labels
+
+### Supported Currencies
+
+- **EGP** (Egyptian Pound): Smallest unit = 100, Decimal places = 2
+- **SAR** (Saudi Riyal): Smallest unit = 100, Decimal places = 2
+- **KWD** (Kuwaiti Dinar): Smallest unit = 1000, Decimal places = 3
+
+## API Endpoints
+
+### Get Transaction Report
+```
+GET /api/transactions
+```
+
+Returns JSON response with transaction report data.
+
+## Project Structure
+
+```
+app/
+├── Console/
+│   └── Commands/
+│       ├── SeedTransactions.php      # Seed command
+│       └── TransactionsReport.php   # Report command
+├── Http/
+│   └── Controllers/
+│       └── TransactionController.php
+├── Models/
+│   └── Transaction.php
+└── Support/
+    └── Money/
+        ├── Money.php                 # Money value object
+        ├── Enums/
+        │   └── Currency.php          # Currency enum
+        └── Casts/
+            └── Money.php             # Eloquent cast
+```
+
+## Performance Notes
+
+- **Seeding**: Can seed 1 million records in approximately 30-60 seconds (depending on hardware)
+- **Reporting**: Processes transactions in chunks to avoid memory issues
+- **Concurrency**: Uses Laravel's Concurrency facade for parallel processing
+- **Database**: Uses bulk inserts and chunked queries for optimal performance
 
 ## License
 
