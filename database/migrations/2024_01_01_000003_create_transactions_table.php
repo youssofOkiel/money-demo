@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('cost');
-            $table->integer('price');
+            $table->bigInteger('price');
             $table->decimal('quantity', 10, 2);
         });
     }
